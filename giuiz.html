@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Benvenuti nel Giuiz 🎓</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Bubblegum+Sans&family=Montserrat:wght@400;600;800&display=swap" rel="stylesheet">
+
+<style>
+  /* --- Stili Animazioni --- */
+  @keyframes fireworks {
+    0% { transform: scale(0.5) translateY(0); opacity: 1; }
+    100% { transform: scale(1.5) translateY(-100px); opacity: 0; }
+  }
+  
+  @keyframes brokenHeart {
+    0% { transform: translateY(0) rotate(0); opacity: 1; }
+    100% { transform: translateY(150px) rotate(20deg); opacity: 0; }
+  }
+
+  /* --- Stili Base --- */
+  body {
+    font-family: "Montserrat", sans-serif;
+    background: url('sfondo-cicogne.jpg') center/cover no-repeat;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center; 
+    min-height: 100vh;
+    padding: 20px;
+    box-sizing: border-box; 
+  }
+  .container {
+    background: rgba(255,255,255,0.9);
+    border-radius: 16px;
+    padding: 24px;
+    max-width: 600px;
+    width: 100%;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    text-align: center;
+  }
+  
+  /* --- Stile Titolo (AGGIORNATO) --- */
+  h1 {
+    /* NUOVO FONT: Bubblegum Sans */
+    font-family: 'Bubblegum Sans', cursive;
+    margin-bottom: 5px; 
+    font-size: 40px; 
+    color: #ff4b5c;
+    line-height: 1.1;
+  }
+  
+  /* --- Stile Sottotitolo (AGGIORNATO) --- */
+  p {
+    /* NUOVO FONT: Bubblegum Sans */
+    font-family: 'Bubblegum Sans', cursive;
+    font-size: 20px;
+    color: #555;
+    margin-bottom: 25px; 
+  }
+
+  /* --- Stile Domanda --- */
+  #questionContainer {
+    font-weight: 800; 
+    font-size: 22px; 
+    margin-bottom: 20px;
+    color: #333;
+  }
+  
+  /* --- Stile Risposte (Spaziatura) --- */
+  .choices {
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* Spazio aumentato */
+    width: 100%;
+  }
+  button.choice {
+    background: #ffe3ec;
+    border: 2px solid transparent;
+    border-radius: 10px;
+    padding: 14px; 
+    font-size: 15px;
+    cursor: pointer;
+    transition: 0.2s;
+    width: 100%;
+    box-sizing: border-box;
+    font-weight: 600; 
+  }
+  button.choice:hover {
+    background: #ffd2e1;
+  }
+  button.choice.selected {
+    border-color: #ff4b5c;
+    background: #ffc1d6;
+  }
+  
+  /* --- Stili per Risposte Corretta/Errata --- */
+  button.choice.correct {
+    background-color: #4CAF50;
+    color: white;
+    border-color: #4CAF50;
+  }
+  button.choice.incorrect {
+    background-color: #f44336;
+    color: white;
+    border-color: #f44336;
+  }
+  
+  #nextBtn {
+    margin-top: 20px;
+    background: #ff4b5c;
+    color: #fff;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  #nextBtn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  
+  /* --- Stili Risultato --- */
+  #resultContainer {
+    position: relative;
+    overflow: hidden;
+    padding: 10px; 
+  }
+  .result {
+    font-size: 20px;
+    font-weight: 600;
+    color: #333;
+    margin-top: 20px;
+  }
+  .emoji {
+    font-size: 50px;
+    margin-top: 10px;
+  }
+  .particle {
+    position: absolute;
+    font-size: 24px;
+    animation-iteration-count: 1;
+    pointer-events: none; 
+  }
+  
+  #restart {
+    margin-top: 20px;
+    background: #4CAF50;
+    color: #fff;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 16px;
+    z-index: 10;
+    position: relative;
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <h1>Benvenuti nel Giuiz 🎓</h1>
+    <p>se non si è capito, stai per fare un quiz su Giulia 😎</p>
+    <div id="quiz">
+      <div id="questionContainer"></div>
+      <div id="choicesContainer"></div>
+      <button id="nextBtn" disabled>Avanti ➡️</button>
+      <div id="resultContainer"></div>
+    </div>
+  </div>
+
+<script>
+const questions = [
+  {q:"Quante volte è stata bocciata all’esame della patente?",a:["mai bocciata","una","due ✅","tre"]},
+  {q:"Che frutto è nel gruppo Macedonia?",a:["cocco","limone","fragola","mirtillo ✅"]},
+  {q:"Qual è il suo drink preferito?",a:["Long island ✅","Spritz","Hugo","Negroni"]},
+  {q:"Quanti capezzoli ha Giulia?",a:["uno","due","quattro ✅","non ne ha"]},
+  {q:"Qual è il suo piatto preferito al sushi?",a:["tempura di gamberi","gunkan ✅","sashimi","tutto sbagliato, non mangia pesce"]},
+  {q:"In macchina al massimo a che marcia arriva?",a:["non guida con il cambio manuale","non ha limiti","terza ✅","quarta"]},
+  {q:"Cosa deve bere Giulia per correre al wc?",a:["cocacola","tisana ai frutti di bosco","caffè","latte ✅"]},
+  {q:"Qual è la sua macchina dei sogni?",a:["Cinquecento","Tiguan","Tesla","Defender ✅"]},
+  {q:"Quale tra queste è una frase iconica di Giulia?",a:["è stato stra spassoso","mi sono proprio divertita","dovremmo farlo più spesso ✅","come vola il tempo quando ci si diverte"]},
+  {q:"Qual è il suo shot preferito?",a:["Sambuca ✅","Tequila","Montenegro","Nessuno di questi"]},
+  {q:"Che serata preferisce in discoteca?",a:["tecno","reggaeton","commerciale ✅","anni ‘80"]},
+  {q:"Dove si trovava il 25 febbraio 2023?",a:["faceva da babysitter alla Ludo","a Valzurio","era di turno in Mangiagalli","all’Olympus ✅"]},
+  {q:"Giulia ha inventato la giornata internazionale (2 agosto)…",a:["…dell’amicizia","…del chill ✅","…del relax","…della felicità"]},
+  {q:"Qual è la sua canzone preferita pre serata?",a:["50 special","Sexy bitch ✅","I love it","Samba do Brasil"]},
+  {q:"In che sezione era all’asilo?",a:["pesci ✅","coccinelle","scoiattoli","tartarughe"]}
+];
+
+let current = 0;
+let score = 0;
+
+const qContainer = document.getElementById("questionContainer");
+const cContainer = document.getElementById("choicesContainer");
+const nextBtn = document.getElementById("nextBtn");
+const resultContainer = document.getElementById("resultContainer");
+
+function showQuestion() {
+  const q = questions[current];
+  qContainer.textContent = `Domanda ${current+1}/${questions.length}: ${q.q}`;
+  cContainer.innerHTML = "";
+  q.a.forEach(ans => {
+    const btn = document.createElement("button");
+    btn.className = "choice";
+    btn.textContent = ans.replace(" ✅","");
+    btn.onclick = () => selectAnswer(btn, ans.includes("✅"));
+    cContainer.appendChild(btn);
+  });
+  nextBtn.disabled = true;
+  resultContainer.textContent = "";
+}
+
+function selectAnswer(button, isCorrect) {
+  Array.from(cContainer.children).forEach(b=>b.classList.remove("selected"));
+  button.classList.add("selected");
+  button.dataset.correct = isCorrect;
+  nextBtn.disabled = false;
+}
+
+nextBtn.onclick = () => {
+  const selected = cContainer.querySelector(".selected");
+  if (!selected) return;
+
+  const isCorrect = selected.dataset.correct === "true";
+  nextBtn.disabled = true; 
+  
+  Array.from(cContainer.children).forEach((button, index) => {
+    button.style.pointerEvents = "none";
+    
+    if (questions[current].a[index].includes("✅")) {
+      button.classList.add("correct");
+    }
+  });
+
+  if (isCorrect) {
+    score++;
+  } else {
+    selected.classList.add("incorrect"); 
+  }
+  
+  setTimeout(() => {
+    current++; 
+    if (current < questions.length) {
+      showQuestion();
+    } else {
+      showResult();
+    }
+  }, 1500); 
+};
+
+function showResult() {
+  qContainer.textContent = "";
+  cContainer.innerHTML = "";
+  nextBtn.style.display = "none";
+
+  let message = "";
+  let emoji = "";
+  let effectType = ""; 
+
+  if(score >= 11) {
+    message = "🎉 Complimenti! Mi conosci stra bene!";
+    emoji = "😎";
+    effectType = "fireworks";
+  } else if(score >= 6) {
+    message = "🤔 Potevi fare meglio!";
+    emoji = "😅";
+    effectType = "none";
+  } else {
+    message = "😤 Vergognati!";
+    emoji = "💀";
+    effectType = "brokenHeart";
+  }
+
+  resultContainer.innerHTML = `
+    <div class="result">Hai totalizzato ${score}/${questions.length}!<br>${message}</div>
+    <div class="emoji">${emoji}</div>
+    <button id="restart">Ricomincia 🔁</button>
+  `;
+  document.getElementById("restart").onclick = restartQuiz;
+
+  if(effectType === "fireworks") {
+    for (let i = 0; i < 30; i++) {
+      const p = document.createElement('div');
+      p.className = 'particle';
+      p.textContent = '✨';
+      p.style.left = `${Math.random() * 100}%`;
+      p.style.top = `${Math.random() * 50 + 50}%`; 
+      p.style.animation = `fireworks 1.2s ease-out ${Math.random() * 0.8}s forwards`;
+      resultContainer.prepend(p);
+    }
+  } else if (effectType === "brokenHeart") {
+    for (let i = 0; i < 20; i++) {
+      const p = document.createElement('div');
+      p.className = 'particle';
+      p.textContent = '💔';
+      p.style.left = `${Math.random() * 100}%`;
+      p.style.top = '-10%'; 
+      p.style.animation = `brokenHeart 2.5s ease-in ${Math.random() * 2}s forwards`;
+      resultContainer.prepend(p);
+    }
+  }
+}
+
+function restartQuiz() {
+  current = 0;
+  score = 0;
+  nextBtn.style.display = "inline-block";
+  resultContainer.innerHTML = ""; 
+  showQuestion();
+}
+
+showQuestion();
+</script>
+</body>
+</html>
